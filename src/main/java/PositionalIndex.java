@@ -10,14 +10,14 @@ public class PositionalIndex {
 
     public static Set<String> distinctTerms = new TreeSet<>();
     public static Map<String, String> postingList = new TreeMap<>();
-    public static Map<String, Integer> df = new HashMap<>();
-    public static Map <String, Map<String, Integer>> tf  = new HashMap<>();
-    public static Map<String, Double> idf = new HashMap<>();
-    public static Map<String, Double> tfWeight = new HashMap<>();
-    public static Map<String, Map<String, Double>> tf_idf = new HashMap<>();
-    public static Map<String, Double> document_weight_length = new HashMap<>();
-    public static Map<String, Map<String, List<Double>>> unit_vector = new HashMap<>();
-    public static Map<String, List<Double>> query_unit_vector = new HashMap<>();
+    public static Map<String, Integer> df = new TreeMap<>();
+    public static Map <String, String > tf  = new TreeMap<>();
+    public static Map<String, Double> idf = new TreeMap<>();
+    public static Map<String, String> tfWeight = new TreeMap<>();
+    public static Map<String, Map<String, Double>> tf_idf = new TreeMap<>();
+    public static Map<String, Double> document_weight_length = new TreeMap<>();
+    public static Map<String, Map<String, List<Double>>> unit_vector = new TreeMap<>();
+    public static Map<String, List<Double>> query_unit_vector = new TreeMap<>();
 
     public static void main(String[] args) throws IOException {
         String folderPath = (new File("").getAbsolutePath()) + "\\docs";
@@ -27,8 +27,8 @@ public class PositionalIndex {
         System.out.println("Distinct Terms: " + distinctTerms);
         System.out.println("Posting List: " + postingList);
 
-//        calculateTF(postingList,tf);
-//        calculateTFWeight(tf,tfWeight);
+        calculateTF(postingList,tf);
+        calculateTFWeight(tf,tfWeight);
 //        calculateDF(postingList,df);
 //        System.out.println("df= "+ df);
 //        calculateIDF(df,10,idf);
@@ -85,15 +85,57 @@ public class PositionalIndex {
     // __________________(TF TASK)____________________
 
     // Method to calculate term frequency (TF) from the positional index
-    public static void calculateTF(Map<String, List<String>> positionalIndex, Map<String, Map<String, Integer>> tf) {
+    public static void calculateTF(Map<String, String> positionalIndex, Map<String, String> tf) {
         // To-Do: Implement logic to calculate TF based on positional index
+        for (Map.Entry<String,String> entry : positionalIndex.entrySet()){
+            String term = entry.getKey();
+            String postingList = entry.getValue();
+
+            StringBuilder pl = new StringBuilder();
+
+            String[] document = postingList.split(";");
+            for (String parts : document){
+                String[] part = parts.split(":");
+                String docID = part[0];
+                Integer positions = part[1].split(",").length;
+                pl.append(docID + ":" + positions + ";");
+            }
+
+            tf.put(term,pl.toString());
+
+
+
+        }
+
+        System.out.println("Term Frequency : "+tf);
+
+
     }
 
     // __________________(TF Weight TASK)____________________
 
     // Method to calculate the TF weight for each term
-    public static void calculateTFWeight(Map<String, Map<String, Integer>> tf, Map<String, Double> tfWeight) {
+    public static void calculateTFWeight(Map<String, String> tf, Map<String, String> tfWeight) {
         // To-Do: Implement logic to calculate the TF weight based on TF values
+        for(Map.Entry<String,String> entry : tf.entrySet()){
+            String term = entry.getKey();
+            String documents = entry.getValue();
+            Double weight = new Double(0.0);
+            StringBuilder pl = new StringBuilder();
+
+            String[] document = documents.split(";");
+            for (String parts: document){
+                String[] part = parts.split(":");
+                String docID = part[0];
+                weight = 1 + Math.log10(Integer.valueOf(part[1]));
+                pl.append(docID + ":" + weight + ";");
+            }
+
+            tfWeight.put(term,pl.toString());
+        }
+
+        System.out.println("Term Frequency Weight : " + tfWeight);
+
     }
 
     // __________________(DF TASK)____________________
