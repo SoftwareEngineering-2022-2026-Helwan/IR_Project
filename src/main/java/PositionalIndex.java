@@ -31,17 +31,12 @@ public class PositionalIndex {
         calculateTFWeight(tf,tfWeight);
         calculateDF(postingList,df);
 //        System.out.println("df= "+ df);
-        calculateIDF(df,10,idf);
-       calculateTFIDF(tfWeight,idf,tf_idf);
-<<<<<<< HEAD
-<<<<<<< HEAD
+//        calculateIDF(df,10,idf);
+
+//        calculateTFIDF(tfWeight,idf,tf_idf);
 //        calculateDocumentWeightLength(tf_idf,document_weight_length);
-=======
-       calculateDocumentWeightLength(tf_idf,document_weight_length);
->>>>>>> 87be379 (Revert "Normalized tf.idf Task has uploaded and tested")
-=======
+
 //        calculateDocumentWeightLength(tf_idf,document_weight_length);
->>>>>>> f497d84 (Revert "Document weight Length Task uploaded and tested successfully")
 //        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
 //        calculateSimilarity(query_unit_vector,unit_vector);
 
@@ -180,34 +175,10 @@ public class PositionalIndex {
     
     // __________________(TF-IDF TASK)____________________
 
-    // Method to calculate TF-IDF from TF weights and IDF values
-    public static void calculateTFIDF(Map<String, String> tfWeight, Map<String, Double> idf, Map<String, Map<String, Double>> tf_idf) {
-        for (Map.Entry<String, String> entry : tfWeight.entrySet()) {
-            String term = entry.getKey();
-            String documents = entry.getValue();
-
-            Map<String, Double> docTFIDF = new TreeMap<>();
-            String[] documentWeights = documents.split(";");
-            for (String docWeight : documentWeights) {
-                if (!docWeight.isEmpty()) {
-                    String[] parts = docWeight.split(":");
-                    String docID = parts[0];
-                    Double tfWeightValue = Double.parseDouble(parts[1]);
-
-                    // Calculate TF-IDF
-                    Double idfValue = idf.get(term);
-                    Double tfidf = tfWeightValue * idfValue;
-
-                    docTFIDF.put(docID, documentRounder(tfidf));
-                }
-            }
-
-            tf_idf.put(term, docTFIDF);
-        }
-
-        System.out.println("TF-IDF: " + tf_idf);
+    // Method to calculate TF-IDF from TF and IDF values
+    public static void calculateTFIDF(Map<String, Double> tfWeight, Map<String, Double> idf, Map<String, Map<String, Double>> tf_idf) {
+        // To-Do: Implement logic to calculate TF-IDF using tfWeight and IDF
     }
-
 
     // __________________(Document Weight Length TASK)____________________
 
