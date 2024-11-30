@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.*;
 import java.util.*;
-import java.util.Collection;
 
 public class PositionalIndex {
 
@@ -15,7 +14,7 @@ public class PositionalIndex {
     public static Map <String, String > tf  = new TreeMap<>();
     public static Map<String, Double> idf = new TreeMap<>();
     public static Map<String, String> tfWeight = new TreeMap<>();
-    public static Map<String, String> tf_idf = new TreeMap<>();
+    public static Map<String, Map<String, Double>> tf_idf = new TreeMap<>();
     public static Map<String, Double> document_weight_length = new TreeMap<>();
     public static Map<String, Map<String, List<Double>>> unit_vector = new TreeMap<>();
     public static Map<String, List<Double>> query_unit_vector = new TreeMap<>();
@@ -31,9 +30,10 @@ public class PositionalIndex {
         calculateTF(postingList,tf);
         calculateTFWeight(tf,tfWeight);
         calculateDF(postingList,df);
+//        System.out.println("df= "+ df);
         calculateIDF(df,10,idf);
-        calculateTFIDF(tfWeight,idf,tf_idf);
-        calculateDocumentWeightLength(tf_idf,document_weight_length);
+       calculateTFIDF(tfWeight,idf,tf_idf);
+//        calculateDocumentWeightLength(tf_idf,document_weight_length);
 //        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
 //        calculateSimilarity(query_unit_vector,unit_vector);
 
@@ -42,11 +42,6 @@ public class PositionalIndex {
     public static Double documentRounder(Double value)
     {
         return  new BigDecimal(value).setScale(7, RoundingMode.HALF_UP).doubleValue();
-    }
-
-    public static Double tf_idfRounder(Double value)
-    {
-        return  new BigDecimal(value).setScale(6, RoundingMode.HALF_UP).doubleValue();
     }
 
     public static Double idfLog(int N, int df)
@@ -157,7 +152,6 @@ public class PositionalIndex {
           // Calculate unique document count for the term
           df.put(term, documents.split(";").length);
        }
-      System.out.println("Document Frequency : "+ df);
 
     }
 
@@ -178,59 +172,40 @@ public class PositionalIndex {
     
     // __________________(TF-IDF TASK)____________________
 
-    // Method to calculate TF-IDF from TF and IDF values
-    public static void calculateTFIDF(Map<String, String> tfWeight, Map<String, Double> idf, Map<String, String> tf_idf) {
-        // To-Do: Implement logic to calculate TF-IDF using tfWeight and IDF
-        for(Map.Entry<String,String> entry : tfWeight.entrySet()){
+    // Method to calculate TF-IDF from TF weights and IDF values
+    public static void calculateTFIDF(Map<String, String> tfWeight, Map<String, Double> idf, Map<String, Map<String, Double>> tf_idf) {
+        for (Map.Entry<String, String> entry : tfWeight.entrySet()) {
             String term = entry.getKey();
             String documents = entry.getValue();
-            String[] document = documents.split(";");
-            StringBuilder pl = new StringBuilder();
-            for(String parts: document){
-                String[] part = parts.split(":");
-                String docID = part[0];
-                String weight = part[1];
-                Double inverted = idf.get(term);
-                Double result = tf_idfRounder(Double.valueOf(weight) * inverted);
-                pl.append(docID + ":" + result + ";");
+
+            Map<String, Double> docTFIDF = new TreeMap<>();
+            String[] documentWeights = documents.split(";");
+            for (String docWeight : documentWeights) {
+                if (!docWeight.isEmpty()) {
+                    String[] parts = docWeight.split(":");
+                    String docID = parts[0];
+                    Double tfWeightValue = Double.parseDouble(parts[1]);
+
+                    // Calculate TF-IDF
+                    Double idfValue = idf.get(term);
+                    Double tfidf = tfWeightValue * idfValue;
+
+                    docTFIDF.put(docID, documentRounder(tfidf));
+                }
             }
 
-            tf_idf.put(term, pl.toString());
+            tf_idf.put(term, docTFIDF);
         }
-        System.out.println("TF.IDF : "+ tf_idf);
 
+        System.out.println("TF-IDF: " + tf_idf);
     }
+
 
     // __________________(Document Weight Length TASK)____________________
 
     // Method to calculate the document weight length from TF-IDF values
-    public static void calculateDocumentWeightLength(Map<String, String> tf_idf, Map<String, Double> document_weight_length) {
+    public static void calculateDocumentWeightLength(Map<String, Map<String, Double>> tf_idf, Map<String, Double> document_weight_length) {
         // To-Do: Implement logic to calculate the document weight length using TF-IDF
-        Map<String,Double> docLen = new TreeMap<>();
-        for(Map.Entry<String,String> entry : tf_idf.entrySet()){
-            String documents = entry.getValue();
-            for (String document : documents.split(";")){
-                String[] parts = document.split(":");
-                String docID = parts[0];
-                String term_inverted = parts[1];
-                if(!docLen.containsKey(docID)){
-                    docLen.put(docID,Math.pow(Double.valueOf(term_inverted),2));
-                }
-                else {
-                    Double value = docLen.get(docID);
-                    value += Math.pow(Double.valueOf(term_inverted),2);
-                    docLen.replace(docID,value);
-                }
-            }
-            for(Map.Entry<String,Double> entry2 : docLen.entrySet()){
-                String docID = entry2.getKey();
-                Double result = documentRounder(Math.sqrt(entry2.getValue()));
-                document_weight_length.put(docID,result);
-            }
-
-        }
-
-        System.out.println("Document Length : " + document_weight_length);
     }
 
     // __________________(Normalized tf.idf TASK)____________________
