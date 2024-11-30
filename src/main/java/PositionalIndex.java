@@ -157,6 +157,7 @@ public class PositionalIndex {
           // Calculate unique document count for the term
           df.put(term, documents.split(";").length);
        }
+      System.out.println("Document Frequency : "+ df);
 
     }
 
