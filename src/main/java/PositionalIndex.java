@@ -100,7 +100,16 @@ public class PositionalIndex {
 
     // Method to calculate document frequency (DF) from the positional index
     public static void calculateDF(Map<String, List<String>> positionalIndex, Map<String, Integer> df) {
-        // To-Do: Implement logic to calculate DF based on positional index
+      for (Map.Entry<String, List<String>> entry : positionalIndex.entrySet()) {
+           String term = entry.getKey();
+           List<String> documents = entry.getValue();
+
+          // Calculate unique document count for the term
+          Set<String> uniqueDocuments = new HashSet<>(documents);
+          df.put(term, uniqueDocuments.size());
+       }
+
+      System.out.println("Document Frequencies (DF): " + df);
     }
 
     // __________________(IDF TASK)____________________
