@@ -34,10 +34,14 @@ public class PositionalIndex {
         calculateIDF(df,10,idf);
        calculateTFIDF(tfWeight,idf,tf_idf);
 <<<<<<< HEAD
+<<<<<<< HEAD
 //        calculateDocumentWeightLength(tf_idf,document_weight_length);
 =======
        calculateDocumentWeightLength(tf_idf,document_weight_length);
 >>>>>>> 87be379 (Revert "Normalized tf.idf Task has uploaded and tested")
+=======
+//        calculateDocumentWeightLength(tf_idf,document_weight_length);
+>>>>>>> f497d84 (Revert "Document weight Length Task uploaded and tested successfully")
 //        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
 //        calculateSimilarity(query_unit_vector,unit_vector);
 
