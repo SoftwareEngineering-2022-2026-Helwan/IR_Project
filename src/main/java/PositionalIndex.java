@@ -17,7 +17,7 @@ public class PositionalIndex {
     public static Map<String, String> tf_idf = new TreeMap<>();
     public static Map<String, Double> document_weight_length = new TreeMap<>();
     public static Map<String, String> unit_vector = new TreeMap<>();
-    public static Map<String, List<Double>> query_unit_vector = new TreeMap<>();
+    public static Map<String, String> query_unit_vector = new TreeMap<>();
 
     public static void main(String[] args) throws IOException {
         String folderPath = (new File("").getAbsolutePath()) + "\\docs";
@@ -34,7 +34,11 @@ public class PositionalIndex {
         calculateTFIDF(tfWeight,idf,tf_idf);
         calculateDocumentWeightLength(tf_idf,document_weight_length);
         calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
-//        calculateSimilarity(query_unit_vector,unit_vector);
+        query_unit_vector.put("fools","0:0.518");
+        query_unit_vector.put("fear","1:0.6807");
+        query_unit_vector.put("in","2:0.518");
+        Double sim = calculateSimilarity(query_unit_vector,unit_vector);
+        System.out.println("Similarity : " + documentRounder(sim)); // to be fixed to calculate for every document
 
     }
 
@@ -254,11 +258,23 @@ public class PositionalIndex {
     // __________________(Calculate Similarity TASK)____________________
 
     // Method to calculate the similarity between two unit vectors
-    public static List<String> calculateSimilarity(Map<String, List<Double>> unitVector1, Map<String, Map<String, List<Double>>> unitVector2) {
+    public static Double calculateSimilarity(Map<String, String> unitVector1, Map<String, String> unitVector2) {
         // To-Do: Implement logic to calculate the similarity between two unit vectors
         // Hint: Use dot product and magnitude calculations
+        //query_unit_vector.put("in","2:0.518");
+        Double result = new Double(0.0);
+        for(Map.Entry<String,String> entry : unitVector1.entrySet()){
+            String term = entry.getKey();
+            Double uv1 = Double.valueOf(entry.getValue().split(":")[1]);
 
-        return new ArrayList<>(); // Replace with the sorted list of document IDs
+            for (String i: unitVector2.get(term).split(";")){
+                result += uv1 * Double.valueOf(i.split(":")[1]);
+            }
+
+
+
+        }
+        return result;
     }
 
 
