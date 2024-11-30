@@ -9,7 +9,7 @@ import java.util.*;
 public class PositionalIndex {
 
     public static Set<String> distinctTerms = new TreeSet<>();
-    public static Map<String, List<String>> postingList = new TreeMap<>();
+    public static Map<String, String> postingList = new TreeMap<>();
     public static Map<String, Integer> df = new HashMap<>();
     public static Map <String, Map<String, Integer>> tf  = new HashMap<>();
     public static Map<String, Double> idf = new HashMap<>();
@@ -30,6 +30,7 @@ public class PositionalIndex {
 //        calculateTF(postingList,tf);
 //        calculateTFWeight(tf,tfWeight);
 //        calculateDF(postingList,df);
+//        System.out.println("df= "+ df);
 //        calculateIDF(df,10,idf);
 //        calculateTFIDF(tfWeight,idf,tf_idf);
 //        calculateDocumentWeightLength(tf_idf,document_weight_length);
@@ -56,22 +57,22 @@ public class PositionalIndex {
             while (line != null) {
                 String[] parts = line.split("\t");
                 String term = parts[0];
-
+                String docIds_with_positions = parts[1];
                 // Add term to the distinct terms set (sorted by default in TreeSet)
                 distinctTerms.add(term);
 
-                List<String> docIds = new ArrayList<>();
-                if (parts.length > 1) {
-                    String[] numbers = parts[1].split(";");
-                    for (String num : numbers) {
-                        if (!num.isEmpty()) {
-                            docIds.add(num.substring(0,num.length()-1));
-                        }
-                    }
-                }
+//                List<String> docIds = new ArrayList<>();
+//                if (parts.length > 1) {
+//                    String[] numbers = parts[1].split(";");
+//                    for (String num : numbers) {
+//                        if (!num.isEmpty()) {
+//                            docIds.add(num.substring(0,num.length()-1));
+//                        }
+//                    }
+//                }
 
-                Collections.sort(docIds);
-                postingList.put(term, docIds);
+//                Collections.sort(term);
+                postingList.put(term, docIds_with_positions);
 
                 line = br.readLine();
             }
