@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.*;
 import java.util.*;
-import java.util.Collection;
 
 public class PositionalIndex {
 
@@ -17,7 +16,7 @@ public class PositionalIndex {
     public static Map<String, String> tfWeight = new TreeMap<>();
     public static Map<String, String> tf_idf = new TreeMap<>();
     public static Map<String, Double> document_weight_length = new TreeMap<>();
-    public static Map<String, Map<String, List<Double>>> unit_vector = new TreeMap<>();
+    public static Map<String, String> unit_vector = new TreeMap<>();
     public static Map<String, List<Double>> query_unit_vector = new TreeMap<>();
 
     public static void main(String[] args) throws IOException {
@@ -34,7 +33,7 @@ public class PositionalIndex {
         calculateIDF(df,10,idf);
         calculateTFIDF(tfWeight,idf,tf_idf);
         calculateDocumentWeightLength(tf_idf,document_weight_length);
-//        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
+        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
 //        calculateSimilarity(query_unit_vector,unit_vector);
 
     }
@@ -235,8 +234,21 @@ public class PositionalIndex {
     // __________________(Normalized tf.idf TASK)____________________
 
     // Method to normalize the TF-IDF and calculate unit vector for each document
-    public static void calculateNormalizeTFIDF(Map<String, Map<String, Double>> tf_idf, Map<String, Double> document_weight_length, Map<String, Map<String, List<Double>>> unit_vector) {
+    public static void calculateNormalizeTFIDF(Map<String, String> tf_idf, Map<String, Double> document_weight_length, Map<String, String> unit_vector) {
         // To-Do: Implement logic to normalize TF-IDF and calculate unit vector for each document
+        for(Map.Entry<String,String> entry : tf_idf.entrySet()){
+            String term = entry.getKey();
+            String term_inverted = entry.getValue();
+            StringBuilder pl = new StringBuilder();
+            for (String i : term_inverted.split(";")){
+                String docID = i.split(":")[0];
+                Double result = tf_idfRounder(Double.valueOf(i.split(":")[1]) / Double.valueOf(document_weight_length.get(docID)));
+                pl.append(docID + ":" + result + ";");
+            }
+            unit_vector.put(term,pl.toString());
+
+        }
+        System.out.println("Unit Vector : " + unit_vector);
     }
 
     // __________________(Calculate Similarity TASK)____________________
