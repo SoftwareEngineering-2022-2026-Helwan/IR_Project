@@ -29,9 +29,9 @@ public class PositionalIndex {
 
         calculateTF(postingList,tf);
         calculateTFWeight(tf,tfWeight);
-//        calculateDF(postingList,df);
+        calculateDF(postingList,df);
 //        System.out.println("df= "+ df);
-//        calculateIDF(df,10,idf);
+        calculateIDF(df,10,idf);
 //        calculateTFIDF(tfWeight,idf,tf_idf);
 //        calculateDocumentWeightLength(tf_idf,document_weight_length);
 //        calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
@@ -160,7 +160,13 @@ public class PositionalIndex {
     // Method to calculate inverse document frequency (IDF) based on DF
     public static void calculateIDF(Map<String, Integer> df, int N, Map<String, Double> idf) {
         // To-Do: Implement logic to calculate IDF using DF and total number of documents N
-
+        for(Map.Entry<String,Integer> entry : df.entrySet()){
+            String term = entry.getKey();
+            Integer documentF = entry.getValue();
+            Double inverted = idfLog(N,documentF);
+            idf.put(term,inverted);
+        }
+        System.out.println("Inverted Document Frequency : " + idf);
     }
 
     // __________________(TF-IDF TASK)____________________
