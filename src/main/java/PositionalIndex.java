@@ -175,6 +175,7 @@ public class PositionalIndex {
         System.out.println("Inverted Document Frequency : " + idf);
     }
 
+    
     // __________________(TF-IDF TASK)____________________
 
     // Method to calculate TF-IDF from TF and IDF values
