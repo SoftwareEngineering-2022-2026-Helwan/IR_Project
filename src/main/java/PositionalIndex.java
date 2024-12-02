@@ -37,8 +37,7 @@ public class PositionalIndex {
         query_unit_vector.put("fools","0:0.518");
         query_unit_vector.put("fear","1:0.6807");
         query_unit_vector.put("in","2:0.518");
-        Double sim = calculateSimilarity(query_unit_vector,unit_vector);
-        System.out.println("Similarity : " + documentRounder(sim)); // to be fixed to calculate for every document
+        calculateSimilarity(query_unit_vector,unit_vector);
 
     }
 
@@ -50,6 +49,10 @@ public class PositionalIndex {
     public static Double tf_idfRounder(Double value)
     {
         return  new BigDecimal(value).setScale(6, RoundingMode.HALF_UP).doubleValue();
+    }
+    public static Double scoreRounder(Double value)
+    {
+        return  new BigDecimal(value).setScale(5, RoundingMode.HALF_UP).doubleValue();
     }
 
     public static Double idfLog(int N, int df)
@@ -232,7 +235,8 @@ public class PositionalIndex {
 
         }
 
-        System.out.println("Document Length : " + document_weight_length);
+        System.out.print("Document Length : ");
+        sortLength(document_weight_length);
     }
 
     // __________________(Normalized tf.idf TASK)____________________
@@ -258,23 +262,132 @@ public class PositionalIndex {
     // __________________(Calculate Similarity TASK)____________________
 
     // Method to calculate the similarity between two unit vectors
-    public static Double calculateSimilarity(Map<String, String> unitVector1, Map<String, String> unitVector2) {
+    public static void calculateSimilarity(Map<String, String> unitVector1, Map<String, String> unitVector2) {
         // To-Do: Implement logic to calculate the similarity between two unit vectors
         // Hint: Use dot product and magnitude calculations
         //query_unit_vector.put("in","2:0.518");
-        Double result = new Double(0.0);
+        Map<String,Map<String,Double>> documentsRank = new TreeMap<>();
+
         for(Map.Entry<String,String> entry : unitVector1.entrySet()){
             String term = entry.getKey();
             Double uv1 = Double.valueOf(entry.getValue().split(":")[1]);
 
             for (String i: unitVector2.get(term).split(";")){
-                result += uv1 * Double.valueOf(i.split(":")[1]);
+                if(!documentsRank.containsKey(term))
+                {
+                    documentsRank.put(term, new TreeMap<>());
+                }
+
+                Double uv2 = Double.parseDouble(i.split(":")[1]);
+                Double dotProduct = uv1 * uv2;
+                String docID = i.split(":")[0];
+
+                if(!documentsRank.get(term).containsKey(docID))
+                {
+                    documentsRank.get(term).put(docID,0.0);
+                }
+
+                Double previousProduct = documentsRank.get(term).get(docID);
+                documentsRank.get(term).replace(docID,previousProduct + dotProduct);
             }
 
 
 
         }
-        return result;
+
+        // sum all dot product for same doc id that is common in all of them
+        Map<String,Double> documentScore = new TreeMap<>();
+
+        for (Map.Entry<String, Map<String, Double>> entry: documentsRank.entrySet())
+        {
+            for(Map.Entry<String,Double> doc : entry.getValue().entrySet())
+            {
+                if(!isCommon(doc.getKey(),documentsRank, unitVector1))
+                {
+                    continue;
+                }
+                if(documentScore.isEmpty() || !documentScore.containsKey(doc.getKey()))
+                {
+                    documentScore.put(doc.getKey(),0.0);
+                }
+                Double prevValue = documentScore.get(doc.getKey());
+                documentScore.replace(doc.getKey(),scoreRounder(prevValue + doc.getValue()));
+            }
+
+        }
+        System.out.print("Related Documents With Score: ");
+        sort(documentScore);
+    }
+
+    public static void sort(Map<String, Double> documentScore)
+    {
+        List<Map.Entry<String, Double>> entryList = new ArrayList<>(documentScore.entrySet());
+
+        // Sort the List by values in descending order
+        Collections.sort(entryList, new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+
+        // Reconstruct the Map in sorted order
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Double> entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        StringBuilder docs = new StringBuilder();
+        docs.append("Result: ");
+        for (Map.Entry<String,Double>entry: sortedMap.entrySet())
+        {
+            docs.append(entry.getKey()).append(" ");
+        }
+        System.out.println(sortedMap);
+        System.out.println(docs);
+    }
+
+    public static void sortLength(Map<String, Double> documentScore)
+    {
+        List<Map.Entry<String, Double>> entryList = new ArrayList<>(documentScore.entrySet());
+
+        // Sort the List by values in descending order
+        Collections.sort(entryList, new Comparator<Map.Entry<String, Double>>() {
+            @Override
+            public int compare(Map.Entry<String, Double> o1, Map.Entry<String, Double> o2) {
+                Integer k1 = Integer.valueOf(o1.getKey());
+                Integer k2 = Integer.valueOf(o2.getKey());
+
+                return k1.compareTo(k2);
+            }
+        });
+
+        // Reconstruct the Map in sorted order
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Double> entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        System.out.println(sortedMap);
+    }
+    public static boolean isCommon(String key, Map<String,Map<String,Double>> documentsRank , Map<String,String> query)
+    {
+
+        int actual = 0;
+        int expected = query.size();
+        for (Map.Entry<String,String> entry: query.entrySet())
+        {
+            for (Map.Entry<String, Double> doc: documentsRank.get(entry.getKey()).entrySet())
+            {
+
+                if(Objects.equals(key, doc.getKey()))
+                {
+                    actual++;
+                    break;
+                }
+            }
+
+        }
+
+        return actual == expected ;
     }
 
 
