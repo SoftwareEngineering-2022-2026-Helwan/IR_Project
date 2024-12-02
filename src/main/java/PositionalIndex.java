@@ -390,5 +390,63 @@ public class PositionalIndex {
         return actual == expected ;
     }
 
+    public static void handlePhraseQuery(String phrase, Map<String, String> positionalIndex) {
+        // Split into words first
+        String[] queryWords = phrase.toLowerCase().split("\\W+");
+
+        // Get the termInfos for each word in the query
+        List<Map<Integer, List<Integer>>> allTermPositions = new ArrayList<>();
+        for (String word : queryWords) {
+            Map<String,String> termInfo = positionalIndex;
+            if (termInfo == null) {
+                System.out.println("Term : " + word + " => Not Found !");
+                return;
+            }
+//            allTermPositions.add(termInfo.positions);
+        }
+
+        // Find documents where the phrase appears by checking intersections
+        Set<Integer> resultDocs = new HashSet<>(allTermPositions.get(0).keySet()); // Start with docs of the first word
+
+        // Intersect the document sets of all terms
+        for (int i = 1; i < allTermPositions.size(); i++) {
+            resultDocs.retainAll(allTermPositions.get(i).keySet());
+        }
+
+        // ensure that the terms are consecutive
+        for (int docId : resultDocs) {
+            boolean isPhraseFound = true;
+
+            // Check positions for each term
+            List<Integer> previousPositions = allTermPositions.get(0).get(docId);
+            for (int i = 1; i < allTermPositions.size(); i++) {
+                List<Integer> currentPositions = allTermPositions.get(i).get(docId);
+
+
+                boolean found = false;
+                for (int prevPos : previousPositions) {
+                    for (int currPos : currentPositions) {
+                        if (currPos == prevPos + 1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) break;
+                }
+
+                if (!found) {
+                    isPhraseFound = false;
+                    break;
+                }
+                previousPositions = currentPositions;
+            }
+
+
+            if (isPhraseFound) {
+                System.out.print("Doc " + docId);
+                System.out.println();
+            }
+        }
+    }
 
 }
