@@ -34,10 +34,23 @@ public class PositionalIndex {
         calculateTFIDF(tfWeight,idf,tf_idf);
         calculateDocumentWeightLength(tf_idf,document_weight_length);
         calculateNormalizeTFIDF(tf_idf,document_weight_length,unit_vector);
-        query_unit_vector.put("fools","0:0.518");
-        query_unit_vector.put("fear","1:0.6807");
-        query_unit_vector.put("in","2:0.518");
+//        query_unit_vector.put("fools","0:0.518");
+//        query_unit_vector.put("fear","1:0.6807");
+//        query_unit_vector.put("in","2:0.518");
+        String ans;
+        do {
+        System.out.print("0) To Exit\nQuery: ");
+        Scanner in = new Scanner(System.in);
+        ans = in.nextLine();
+        if(ans.contains("0"))
+        {
+            System.out.println("Exiting.....");
+            return;
+        }
+        query_unit_vector = query(ans);
         calculateSimilarity(query_unit_vector,unit_vector);
+
+        }while (!ans.contains("0"));
 
     }
 
@@ -388,6 +401,52 @@ public class PositionalIndex {
         }
 
         return actual == expected ;
+    }
+
+
+
+    public static Map<String, String> query(String queryString){
+        String[] queryStringArray = queryString.split(" ");
+        ArrayList<String> terms = new ArrayList<>();
+        Map<String,String> Result = new HashMap<>();
+        Collections.addAll(terms, queryStringArray);
+        normalized(terms);
+
+        for(Map.Entry<String,Double> entry : normalized(terms).entrySet()){
+            Result.put(entry.getKey(), queryTF(terms).get(entry.getKey()) + ":" + String.format("%.4f", entry.getValue()));
+        }
+        return Result;
+
+    }
+
+    public static Map<String,Integer> queryTF(ArrayList<String> terms){  // Calculates The Term Frequency in the query
+        Map<String,Integer> termFerq = new HashMap<>();
+        for (String element : terms) {
+            termFerq.put(element, termFerq.getOrDefault(element, 0) + 1);
+        }
+        return termFerq;
+    }
+
+    public static Map<String,Double> normalized (ArrayList<String> terms){
+        Map<String,Double> TermWT = new HashMap<>();  // A HashMap to Store Each distinct Term and its corresponding tf_idf
+        Set<String> distinctTerms = new HashSet<>();
+        distinctTerms.addAll(terms);
+        double tf_idf;
+        for(String i : distinctTerms){
+            tf_idf = (Math.log10(queryTF(terms).get(i)) + 1) * idf.get(i); // THE IDF IS CALLED HERE!!!!
+            TermWT.put(i,tf_idf);
+            tf_idf = 0;
+        }
+        double length = 0;
+        for(Double n : TermWT.values()){
+            length += n * n;
+        }
+        length = Math.sqrt(length);
+        Map<String,Double> normalization = new HashMap<>();
+        for(Map.Entry<String,Double> entry : TermWT.entrySet()){
+            normalization.put(entry.getKey(),(entry.getValue()/length));
+        }
+        return normalization;
     }
 
 
