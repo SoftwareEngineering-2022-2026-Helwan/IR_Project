@@ -468,7 +468,7 @@ public class PositionalIndex {
         ArrayList<String> terms = new ArrayList<>();
         Map<String,String> Result = new HashMap<>();
         Collections.addAll(terms, queryStringArray);
-        normalized(terms);
+
 
         for(Map.Entry<String,Double> entry : normalized(terms).entrySet()){
             Result.put(entry.getKey(), queryTF(terms).get(entry.getKey()) + ":" + String.format("%.4f", entry.getValue()));
@@ -491,6 +491,11 @@ public class PositionalIndex {
         distinctTerms.addAll(terms);
         double tf_idf;
         for(String i : distinctTerms){
+            if(idf.get(i) == null)
+            {
+                tf_idf = 0;
+                continue;
+            }
             tf_idf = (Math.log10(queryTF(terms).get(i)) + 1) * idf.get(i); // THE IDF IS CALLED HERE!!!!
             TermWT.put(i,tf_idf);
             tf_idf = 0;
