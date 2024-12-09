@@ -328,6 +328,11 @@ public class PositionalIndex {
             }
 
         }
+        if(documentScore.isEmpty())
+        {
+            System.out.println("No Document Found!");
+            return;
+        }
         System.out.print("Related Documents With Score: ");
         sort(documentScore);
     }
@@ -349,6 +354,12 @@ public class PositionalIndex {
         for (Map.Entry<String, Double> entry : entryList) {
             sortedMap.put(entry.getKey(), entry.getValue());
         }
+
+        if(sortedMap.isEmpty())
+        {
+            return;
+        }
+
         StringBuilder docs = new StringBuilder();
         docs.append("Result: ");
         for (Map.Entry<String,Double>entry: sortedMap.entrySet())
@@ -507,6 +518,7 @@ public class PositionalIndex {
         length = Math.sqrt(length);
         Map<String,Double> normalization = new HashMap<>();
         for(Map.Entry<String,Double> entry : TermWT.entrySet()){
+            System.out.println("word: "+entry.getKey()+": "+(entry.getValue()/length));
             normalization.put(entry.getKey(),(entry.getValue()/length));
         }
         return normalization;

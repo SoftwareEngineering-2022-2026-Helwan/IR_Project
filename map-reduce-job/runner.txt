@@ -1,0 +1,41 @@
+javac -classpath `hadoop classpath` -d /home/cloudera/Downloads/task-inverted-index/code ~/Downloads/task-inverted-index/src/PosIndexSorted/TokenizerMapper.java ~/Downloads/task-inverted-index/src/PosIndexSorted/PostingListReducer.java ~/Downloads/task-inverted-index/src/PosIndexSorted/InvertedIndex.java
+==or
+javac -classpath `hadoop classpath` -d /home/cloudera/Downloads/task-inverted-index/code ~/Downloads/task-inverted-index/src/PosIndexSortedV2/TokenizerMapper.java ~/Downloads/task-inverted-index/src/PosIndexSortedV2/PostingListReducer.java ~/Downloads/task-inverted-index/src/PosIndexSortedV2/InvertedIndex.java
+
+
+jar -cvf posindexsortjob.jar -C code .
+
+
+hdfs dfs -put posindexsortjob.jar /user/cloudera/
+== or
+hdfs dfs -put posindexsortjob.jar 
+
+
+hdfs dfs -put docs /input
+
+
+hadoop jar posindexsortjob.jar PosIndexSortedV2.InvertedIndex /input/docs/ <outputFolderPath>
+
+hadoop jar <your-jar-file>  <Package-name>.<class-holding-main-method> <path-to-doc-collection> <output-path>
+
+hdfs dfs -ls /output/path
+
+
+/task-inverted-index/src/PosIndexSortedV2/PostingListReducer.java
+
+
+javac -classpath `hadoop classpath` -d <out-dir> [.java-files]
+
+jar -cvf <output-Name> -C <.class-path> <out-path>
+
+hdfs dfs -put <path-to-jar> 
+
+hdfs dfs -put <path-to-document-collection> <path-on-hdfs>
+
+hadoop jar <your-jar-file>  <Package-name>.<class-holding-main-method> <path-to-doc-collection> <output-path>
+
+#to print files
+hdfs dfs -cat <output-path>/part-* 
+
+#to download file on cloudera from hdfs
+hdfs dfs -get <output-path>/part-*
